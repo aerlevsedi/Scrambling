@@ -30,7 +30,7 @@ classdef DesyncChannel < handle
 
                 obj.periodicErrors(o);
                 obj.singleErrors(o);
-                %obj.desyncErrors(o);
+                obj.desyncErrors(o);
 
                 obj.signal = [];
             end
@@ -78,6 +78,48 @@ classdef DesyncChannel < handle
                     if obj.singleBits(i) >= 1 && obj.singleBits(i) <= signal.getSize()
                         signal.negBit(obj.singleBits(i));
                     end
+                end
+            end
+        end
+
+        function desyncErrors(obj, signal)
+            if obj.desyncType == 0 || obj.desyncBreakpoint == 0
+                return;
+            end
+
+            repeat = -1;
+            counter = 0;
+
+            i = 1;
+            while i <= signal.getSize()
+                if signal.getBit(i) == repeat
+                    counter = counter + 1;
+                else
+                    counter = 0;
+                end
+
+                if counter == obj.desyncBreakpoint
+                    if obj.desyncType == 1
+                        signal.insertBit(i, repeat);
+                        i = i + 1;
+                    else
+                        if obj.desyncType == -1
+                            signal.removeBit(i);
+                            i = i - 1;
+                        else
+                            if obj.desyncType == 2
+                                if round(rand())
+                                    signal.insertBit(i, repeat);
+                                    i = i + 1;
+                                else
+                                    signal.removeBit(i);
+                                    i = i - 1;
+                                end
+                            end
+                        end
+                        counter = 0;
+                    end
+                    i = i + 1;
                 end
             end
         end
