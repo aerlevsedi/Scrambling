@@ -4,7 +4,7 @@ classdef DesyncChannel < handle
         signal
         periodicBits, periodicStart, periodicInterval
         singleBits,
-        desyncType, desyncBreakpoint
+        desyncType, desyncBreakpoint % 1: insert/ -1: delete/ 2: random
     end
 
     methods
@@ -71,7 +71,7 @@ classdef DesyncChannel < handle
         end
 
         function singleErrors(obj, signal)
-            for i = 1 : size(obj.single)
+            for i = 1 : size(obj.singleBits)
                 if obj.singleBits(i) <= -1 && obj.singleBits(i) >= -(signal.getSize())
                     signal.negBit(signal.getSize() + obj.singleBits(i) + 1);
                 else
@@ -98,6 +98,11 @@ classdef DesyncChannel < handle
                     counter = 0;
                 end
 
+                if counter == 0
+                    repeat = signal.getBit(i);
+                    counter = counter + 1;
+                end
+
                 if counter == obj.desyncBreakpoint
                     if obj.desyncType == 1
                         signal.insertBit(i, repeat);
@@ -119,8 +124,8 @@ classdef DesyncChannel < handle
                         end
                         counter = 0;
                     end
-                    i = i + 1;
                 end
+                i = i + 1;
             end
         end
     end
