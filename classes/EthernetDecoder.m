@@ -109,7 +109,7 @@ classdef EthernetDecoder < handle
             end
 
             % find best preamble
-            mostPreambles = -1;
+            mostPreambles = -1000;
             bestIndex = -1;
             for i = 1 : 2 * obj.numberOfPreambles
                 if preamblesScores(i) > mostPreambles
@@ -118,7 +118,7 @@ classdef EthernetDecoder < handle
                 end
             end
 
-            preambleIndex = preamblesIndexes(bestIndex);
+            preambleIndex = preamblesIndexes(bestIndex) + 2;
         end
 
         function bestPreambleScore = checkPreambles(obj, signal, i)
