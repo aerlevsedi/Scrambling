@@ -28,8 +28,6 @@ classdef BSC < handle
                 for i = 1 : o.getSize()
                     if rand < obj.probability
                         o.negBit(i);
-                        msg = ['Bit ' num2str(i) ' was flipped'];
-                        disp(msg);
                     end
                 end
 
