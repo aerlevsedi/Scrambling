@@ -61,8 +61,12 @@ classdef DesyncChannel < handle
                             end
                         end
                     else
-                        if tmp ~= obj.periodicBits
+                        if buf ~= obj.periodicBits
                             signal.negBit(i);
+                            buf = buf + 1;
+                        end
+                        if buf == obj.periodicBits
+                            interval = true;
                             buf = 0;
                         end
                     end
