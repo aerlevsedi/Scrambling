@@ -1,5 +1,4 @@
 classdef EthernetCoder < handle
-    %ETHERNETCODER Summary of this class goes here
     
     methods  
         %signalToCode argument's size is 64 bit aligned 
