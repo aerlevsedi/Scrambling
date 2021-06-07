@@ -4,12 +4,15 @@ classdef HdmiCoder < handle
         function encodedSignal8b = encode(~, signalToEncode)
             
             i = 1;
+            signalToEncode = Helper.appendToAlign8(signalToEncode);
             while i+1 <= signalToEncode.getSize()
                 frameXor = zeros(8, 1);
                 frameXnor = zeros(8, 1);
                 for j = 0 : 7
-                    frameXor(j+1) = signalToEncode.getBit(i+j);
-                    frameXnor(j+1) = signalToEncode.getBit(i+j);
+                    if i+j <= signalToEncode.getSize()
+                        frameXor(j+1) = signalToEncode.getBit(i+j);
+                        frameXnor(j+1) = signalToEncode.getBit(i+j);
+                    end
                 end
 
                 for j = 2 : 8

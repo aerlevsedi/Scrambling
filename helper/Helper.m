@@ -22,6 +22,16 @@ classdef Helper
             end
         end
         
+        function o = appendToAlign10(signal)
+            currentSize = signal.getSize();
+            newSize = 10 * (floor((currentSize-1)/10) + 1);
+            o = Signal(newSize);
+            
+            for i = 1 : currentSize
+                o.setBitV(i, signal.getBit(i));
+            end
+        end
+        
         function o = calculateBER(signalA, signalB)
             sizeDifference = max(signalA.getSize(), signalB.getSize()) - min(signalA.getSize(), signalB.getSize());
 

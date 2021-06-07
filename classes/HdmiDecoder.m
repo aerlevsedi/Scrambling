@@ -13,7 +13,18 @@ classdef HdmiDecoder < handle
             decodedSignal = Signal(numberOfFrames*8);
             
             if mod(signalSize, 10) ~= 0
-               obj.errorFlag = true; 
+               obj.errorFlag = true;
+               a1 = signal.getBit(signalSize-1);
+               a2 = signal.getBit(signalSize);
+               
+               signal = Helper.appendToAlign10(signal);
+               
+               signal.setBitV(signalSize-1, 0);
+               signal.setBitV(signalSize, 0);
+               
+               signal.setBitV(signal.getSize() - 1, a1);
+               signal.setBitV(signal.getSize(), a2);
+               signalSize = signal.getSize();
             end
             
             k = 1;
