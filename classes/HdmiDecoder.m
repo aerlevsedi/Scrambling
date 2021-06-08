@@ -35,7 +35,40 @@ classdef HdmiDecoder < handle
                        signal.negBit(i+j);
                     end
                 end
-                % TODO: check if it should be inverted (stats)
+                
+                frame = zeros(8, 1);
+                for j = 0 : 7
+                    if i+j <= signal.getSize()
+                        frame(j+1) = signal.getBit(i+j);
+                    end
+                end
+                
+                zerosCount = 0;
+                    
+                for j = 1 : 8
+                    if frame(j) == 0
+                        zerosCount = zerosCount + 1;
+                    end
+                end
+                
+                if signal.getBit(i+9) == 0
+                    current = (zerosCount+1) / 9;
+                    inverted = (8 - zerosCount + 1) / 9;
+                else
+                    current = (zeros) / 9;
+                    inverted = (8 - zerosCount) / 9;
+                end
+                
+                    
+                if abs(0.5 - current) > abs(0.5 - inverted)
+                    if signal.getBit(i+9) == 1
+                        obj.errorFlag = true;
+                    end
+                else
+                    if signal.getBit(i+9) == 0
+                        obj.errorFlag = true;
+                    end
+                end
                 
                 decodedSignal.setBitV(k, signal.getBit(i));
                 
