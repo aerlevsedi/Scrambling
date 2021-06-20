@@ -1,11 +1,11 @@
 for i = 1 : 10
     randomGenerator = RandomGenerator();
-    encoder = HdmiCoder();
-    decoder = HdmiDecoder();
-    seed = randi([0 1],1,17);
-    scrambler = ScramblerHDMI(seed);
-    descrambler = DescramblerHDMI(seed);
-    channel = BSC();
+    encoder = UsbCoder();
+    decoder = UsbDecoder();
+    seed = randi([0 1],1,18);
+    scrambler = ScramblerUSB(seed);
+    descrambler = DescramblerUSB(seed);
+    channel = BEC();
 
     testIterations = 1000;
     randomSignalSize = 80 * i;
@@ -16,7 +16,7 @@ for i = 1 : 10
     BERResync = 0;
     BERResyncScrambling = 0;
 
-    disp("HDMI BSC for " + randomSignalSize + " size");
+    disp("USB BEC for " + randomSignalSize + " size");
 
     for j = 1 : testIterations
         signalOrg = randomGenerator.generate(randomSignalSize);

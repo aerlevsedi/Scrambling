@@ -1,6 +1,4 @@
-classdef Scrambler < handle
-    %UNTITLED2 Summary of this class goes here
-    %   Detailed explanation goes here
+classdef DescramblerUSB < handle
     
     properties (Access = private)
         seed
@@ -8,7 +6,7 @@ classdef Scrambler < handle
     end
     
     methods
-        function obj = Scrambler(seed)
+        function obj = DescramblerUSB(seed)
             if(nargin == 0)
                 obj.seed  = [0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1];%randi([0 1],1,59);
                 obj.LFSR = obj.seed;
@@ -18,20 +16,21 @@ classdef Scrambler < handle
             end
         end
         
-        function o = scramble(obj, signalToScramble)
-            for i = 1:signalToScramble.getSize()
-                x = xor(obj.LFSR(1,1), xor(obj.LFSR(1,40), obj.LFSR(1,59)));
-                x = xor(signalToScramble.getBit(i), x);
-                signalToScramble.setBitV(i, x);
+        function o = descramble(obj, signalToDescramble)
+            for i = 1:signalToDescramble.getSize()
+                insertBit = signalToDescramble.getBit(i);
+                x = xor(obj.LFSR(1,1), xor(obj.LFSR(1,4), xor(obj.LFSR(1,5), xor(obj.LFSR(1,6), obj.LFSR(1,17)))));
+                x = xor(insertBit, x);
+                signalToDescramble.setBitV(i, x);
 
-                obj.LFSR = [signalToScramble.getBit(i), obj.LFSR(1:end-1)];
+                obj.LFSR = [insertBit, obj.LFSR(1:end-1)];
                 
-                o = signalToScramble;
+                o = signalToDescramble;
             end
         end
         
         function disp(obj)
-            disp("Scrambler LFSR: ");
+            disp("Descrambler USB LFSR");
             fprintf("[");
             for i = 1 : size(obj.LFSR,2)
                fprintf("%d ", obj.LFSR(i));
@@ -44,5 +43,5 @@ classdef Scrambler < handle
         end
         
     end
-
+    
 end

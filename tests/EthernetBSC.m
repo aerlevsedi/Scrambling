@@ -1,60 +1,65 @@
-randomGenerator = RandomGenerator();
-encoder = EthernetCoder();
-decoder = EthernetDecoder();
-scrambler = Scrambler();
-descrambler = Descrambler();
-channel = BSC();
+for i = 1 : 10
+    randomGenerator = RandomGenerator();
+    encoder = EthernetCoder();
+    decoder = EthernetDecoder();
+    seed = randi([0 1],1,59);
+    scrambler = ScramblerEthernet(seed);
+    descrambler = DescramblerEthernet(seed);
+    channel = BSC();
 
-testIterations = 1000;
-randomSignalSize = 500;
-randomGenerator.duplProb = 0.7;
-channel.probability = 0.01;
+    testIterations = 1000;
+    randomSignalSize = 640 * i;
+    randomGenerator.duplProb = 0;
+    channel.probability = 0.05;
 
-BERClean = 0;
-BERResync = 0;
-BERResyncScrambling = 0;
+    BERClean = 0;
+    BERResync = 0;
+    BERResyncScrambling = 0;
 
+    disp("Ethernet BSC for " + randomSignalSize + " size");
 
-for i = 1 : testIterations
-    signalOrg = randomGenerator.generate(randomSignalSize);
-    % no resync, no scrambling
-    signal = signalOrg.copy();
+    for j = 1 : testIterations
+        signalOrg = randomGenerator.generate(randomSignalSize);
+        % no resync, no scrambling
+        signal = signalOrg.copy();
 
-    channel.send(signal);
-    signal = channel.receive();
+        channel.send(signal);
+        signal = channel.receive();
 
-    BERClean = BERClean + Helper.calculateBER(signalOrg, signal);
+        BERClean = BERClean + Helper.calculateBER(signalOrg, signal);
 
-    % resync, no scrambling
-    signal = signalOrg.copy();
+        % resync, no scrambling
+        signal = signalOrg.copy();
 
-    signal = encoder.encode(signal);
-    channel.send(signal);
-    signal = channel.receive();
-    signal = decoder.decode(signal);
+        signal = encoder.encode(signal);
+        channel.send(signal);
+    	signal = channel.receive();
+        signal = decoder.decode(signal);
 
-    BERResync = BERResync + Helper.calculateBER(signalOrg, signal);
+        BERResync = BERResync + Helper.calculateBER(signalOrg, signal);
 
-    % resync, scrambling
-    signal = signalOrg.copy();
-    scrambler.resetLFSR();
-    descrambler.resetLFSR();
+        % resync, scrambling
+        signal = signalOrg.copy();
+        scrambler.resetLFSR();
+        descrambler.resetLFSR();
 
-    signal = scrambler.scramble(signal);
-    signal = encoder.encode(signal);
-    channel.send(signal);
-    signal = channel.receive();
-    signal = decoder.decode(signal);
-    signal = descrambler.descramble(signal);
+        signal = scrambler.scramble(signal);
+        signal = encoder.encode(signal);
+        channel.send(signal);
+        signal = channel.receive();
+        signal = decoder.decode(signal);
+        signal = descrambler.descramble(signal);
 
-    BERResyncScrambling = BERResyncScrambling + Helper.calculateBER(signalOrg, signal);
+        BERResyncScrambling = BERResyncScrambling + Helper.calculateBER(signalOrg, signal);
+
+    end
+
+    BERClean = BERClean / testIterations;
+    BERResync = BERResync / testIterations;
+    BERResyncScrambling = BERResyncScrambling / testIterations;
+
+    disp("Clean: " + BERClean);
+    disp("Resync: " + BERResync);
+    disp("Resync, scrambling: " + BERResyncScrambling);
 
 end
-
-BERClean = BERClean / testIterations;
-BERResync = BERResync / testIterations;
-BERResyncScrambling = BERResyncScrambling / testIterations;
-
-disp("Clean : " + BERClean);
-disp("Resync: " + BERResync);
-disp("Resync, scrambling: " + BERResyncScrambling);
